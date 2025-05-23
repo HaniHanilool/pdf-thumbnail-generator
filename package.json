@@ -1,0 +1,12 @@
+{
+  "name": "pdf-thumbnail-generator",
+  "version": "1.0.0",
+  "main": "api/thumbnail.js",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^0.29.1",
+    "puppeteer-core": "^20.0.0"
+  }
+}
