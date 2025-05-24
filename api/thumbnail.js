@@ -3,9 +3,7 @@ import chromium from '@sparticuz/chromium';
 
 export default async function handler(req, res) {
   const pdfUrl = req.query.url;
-  if (!pdfUrl) {
-    return res.status(400).send("Missing 'url' query parameter.");
-  }
+  if (!pdfUrl) return res.status(400).send("Missing 'url' query parameter.");
 
   try {
     const browser = await puppeteer.launch({
@@ -16,15 +14,11 @@ export default async function handler(req, res) {
     });
 
     const page = await browser.newPage();
+    const viewerUrl = `https://${req.headers.host}/viewer.html?pdf=${encodeURIComponent(pdfUrl)}`;
+    await page.goto(viewerUrl, { waitUntil: 'networkidle0' });
+    await page.waitForSelector('#pdf-canvas');
 
-    // Open the PDF directly (render first page for thumbnail)
-    await page.goto(pdfUrl, { waitUntil: 'networkidle2' });
-
-    // Wait for the PDF to render - the Chromium PDF viewer uses canvas tag
-    await page.waitForSelector('canvas');
-
-    // Screenshot the first canvas (the thumbnail)
-    const canvas = await page.$('canvas');
+    const canvas = await page.$('#pdf-canvas');
     const screenshot = await canvas.screenshot({ type: 'jpeg', quality: 80 });
 
     await browser.close();
